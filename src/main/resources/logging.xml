@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <handlers>
+        <handler class="java.util.logging.FileHandler" name="fileHandler">
+            <property name="pattern" value="logs/app-%g.log"/>
+            <property name="limit" value="50000"/>
+            <property name="count" value="10"/>
+            <property name="append" value="true"/>
+            <level value="ALL"/>
+            <formatter>
+                <class name="java.util.logging.SimpleFormatter"/>
+            </formatter>
+        </handler>
+        <handler class="java.util.logging.ConsoleHandler" name="consoleHandler">
+            <level value="ALL"/>
+            <formatter>
+                <class name="java.util.logging.SimpleFormatter"/>
+            </formatter>
+        </handler>
+    </handlers>
+    <loggers>
+        <logger name="LogUtil" useParentHandlers="false">
+            <level value="ALL"/>
+            <handlers>
+                <handler ref="fileHandler"/>
+                <handler ref="consoleHandler"/>
+            </handlers>
+        </logger>
+    </loggers>
+</configuration>
