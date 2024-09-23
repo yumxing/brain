@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 定义变量，可以在整个配置中重用 -->
+    <property name="LOGS" value="./logs"/>
+
+    <!-- 控制台日志输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 按日期滚动的日志文件输出 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 每天生成一个新的日志文件 -->
+            <fileNamePattern>${LOGS}/archived/application-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- 保留30天的日志文件 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 基于大小滚动的日志文件输出 -->
+    <appender name="SIZE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/size-based-application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS}/archived/size-based-application-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 当日志文件达到10MB时进行滚动 -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 最多保存20个归档文件 -->
+            <maxHistory>20</maxHistory>
+            <!-- 总日志文件大小限制为200MB -->
+            <totalSizeCap>200MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- SMTP Appender 示例，用于发送错误邮件通知 -->
+    <appender name="SMTP" class="ch.qos.logback.classic.net.SMTPAppender">
+        <smtpHost>smtp.qiye.aliyun.com</smtpHost>
+        <smtpPort>25</smtpPort>
+        <STARTTLS>true</STARTTLS>
+<!--        <username>yumxing@wishtoday.com.cn</username>-->
+<!--        <password>Xyy+=1581199</password>-->
+        <to>yumxing@wishtoday.com.cn</to>
+        <from>no-reply@wishtoday.com.cn</from>
+        <subject>Error Notification</subject>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </layout>
+        <!-- 发送邮件的触发条件 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <asynchronousSending>false</asynchronousSending>
+        <bufferSize>512</bufferSize>
+    </appender>
+
+    <!-- 根据日志级别过滤日志 -->
+    <appender name="FILTERED" class="ch.qos.logback.core.FileAppender">
+        <file>${LOGS}/filtered.log</file>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- 设置全局日志级别和使用的appender -->
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="SIZE_FILE"/>
+        <appender-ref ref="SMTP"/>
+        <appender-ref ref="FILTERED"/>
+    </root>
+
+    <!-- 对特定包设置不同的日志级别 -->
+<!--    <logger name="cn.com.wishtoday" level="info" additivity="false">-->
+<!--        <appender-ref ref="STDOUT"/>-->
+<!--    </logger>-->
+
+</configuration>
