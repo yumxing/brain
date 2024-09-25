@@ -38,7 +38,7 @@ public class DbConfig {
     /**
      * 加载配置文件并设置数据库属性
      */
-    public void loadDbConfig() {
+    private void loadDbConfig() {
         ObjectMapper objectMapper = new ObjectMapper();
         ClassLoader classLoader = DbConfig.class.getClassLoader();
         try (InputStream inputStream = classLoader.getResourceAsStream("dbconfig.json")) {
