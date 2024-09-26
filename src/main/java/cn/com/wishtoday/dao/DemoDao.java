@@ -1,6 +1,6 @@
 package cn.com.wishtoday.dao;
 
-import cn.com.wishtoday.config.DbConfig;
+import cn.com.wishtoday.repository.db.DBManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +12,10 @@ public class DemoDao {
     private static final Logger log = LoggerFactory.getLogger(DemoDao.class);
     public static void main(String[] args) {
         long startSql = System.currentTimeMillis();//sql开始执行时间
-        DbConfig dbConfig = DbConfig.getInstance();
-        try (Connection conn = dbConfig.createConnection();
+        String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        log.info("当前执行数据库操作的方法是："+methodName);
+        DBManager dbManager = DBManager.getInstance();
+        try (Connection conn = dbManager.createConnection();
              Statement stmt = conn.createStatement()) {
             String sql = "SELECT * FROM zhongzhi_college";
             try (ResultSet rs = stmt.executeQuery(sql)) {
