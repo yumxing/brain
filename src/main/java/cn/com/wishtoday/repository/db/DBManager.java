@@ -1,6 +1,7 @@
-package cn.com.wishtoday.config;
+package cn.com.wishtoday.repository.db;
 
-import cn.com.wishtoday.pojo.Database;
+
+import cn.com.wishtoday.repository.db.pojo.Database;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
@@ -13,21 +14,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 
-public class DbConfig {
-    private static final Logger log = LoggerFactory.getLogger(DbConfig.class);
+public class DBManager {
+    private static final Logger log = LoggerFactory.getLogger(DBManager.class);
     @JsonProperty("database")
     private Database database;
     private static volatile DataSource dataSource;// HikariCP DataSource
-    private static volatile DbConfig instance;
+    private static volatile DBManager instance;
 
-    private DbConfig() {}
+    private DBManager() {}
 
-    public static DbConfig getInstance(){
+    public static DBManager getInstance(){
         if(instance == null){
-            synchronized (DbConfig.class){
+            synchronized (DBManager.class){
                 if (null == instance){
-                    instance = new DbConfig();
-                    instance.loadDbConfig();
+                    instance = new DBManager();
+                    instance.loadDBManager();
                     instance.initializeDataSource();
                 }
             }
@@ -38,15 +39,15 @@ public class DbConfig {
     /**
      * 加载配置文件并设置数据库属性
      */
-    public void loadDbConfig() {
+    private void loadDBManager() {
         ObjectMapper objectMapper = new ObjectMapper();
-        ClassLoader classLoader = DbConfig.class.getClassLoader();
+        ClassLoader classLoader = DBManager.class.getClassLoader();
         try (InputStream inputStream = classLoader.getResourceAsStream("dbconfig.json")) {
             if (inputStream == null) {
-                throw new RuntimeException("dbconfig.json not found in classpath");
+                throw new RuntimeException("DBManager.json not found in classpath");
             }
-            DbConfig dbConfig = objectMapper.readValue(inputStream, DbConfig.class);
-             this.database = dbConfig.database;
+            DBManager DBManager = objectMapper.readValue(inputStream, DBManager.class);
+            this.database = DBManager.database;
         } catch (IOException e) {
             log.error("Database configuration loaded error. {}", e.getMessage(), e);
             this.database = null;
