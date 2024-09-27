@@ -1,6 +1,5 @@
 package cn.com.wishtoday.repository.db;
 
-
 import cn.com.wishtoday.repository.db.pojo.Database;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,4 +78,6 @@ public class DBManager {
     public Connection createConnection() throws SQLException {
         return dataSource.getConnection();
     }
+
+
 }
