@@ -1,7 +1,5 @@
 package cn.com.wishtoday.utils;
 
-import cn.com.wishtoday.repository.db.DBManager;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,26 +43,36 @@ public class DBUtil {
 
 
     /**
-     * 封装一个通用的查询方法
-     * @param sql String
-     * @param handler ResultSetHandler<T>
-     * @param params Object...
-     * @return 返回
-     * @param <T> 返回值类型
+     *
+     * @param conn 数据库连接
+     * @param sql sql语句
+     * @param listArray ResultSet结果集
+     * @param params sql参数
+     * @return 返回值
      * @throws SQLException 异常
      */
-    public static <T> T query(String sql, ResultSetHandler<T> handler, Object... params) throws SQLException{
-        Connection conn = null;
+    public static List<Map<String, Object>> query(Connection conn, String sql, List<String[]> listArray, Object... params) throws SQLException {
+        List<Map<String, Object>> listMap = new ArrayList<>();
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            conn = DBManager.getInstance().createConnection();
             pstmt = conn.prepareStatement(sql);
             for (int i = 0; i < params.length; i++) {
                 pstmt.setObject(i+1, params[i]);
             }
             rs = pstmt.executeQuery();
-            return handler.handler(rs);
+            while (rs.next()) {
+                Map<String, Object> row = new LinkedHashMap<>();
+                if(!listArray.isEmpty()){
+                    for (String[] strArray: listArray) {
+                        if(strArray.length==2){
+                            row.put(strArray[0], rs.getObject(strArray[1]));
+                        }
+                    }
+                    listMap.add(row);
+                }
+            }
+            return listMap;
         } finally {
             closeQuietly(rs);
             closeQuietly(pstmt);
@@ -86,11 +94,4 @@ public class DBUtil {
         }
     }
 
-    /**
-     * 定义一个接口来处理ResultSet
-     * @param <T>
-     */
-    public interface ResultSetHandler<T> {
-        T handler(ResultSet rs) throws SQLException;
-    }
 }

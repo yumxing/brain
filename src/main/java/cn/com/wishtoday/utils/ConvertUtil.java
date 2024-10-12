@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Base64;
 
 public class ConvertUtil {
@@ -64,6 +65,16 @@ public class ConvertUtil {
             sBuilder.append(c);
         }
         return sBuilder.toString();
+    }
+
+    /**
+     * 获取文件扩展名
+     * @return java.lang.String
+     */
+    private static String getFileExtension(Path path) {
+        String fileName = path.getFileName().toString();
+        int dotIndex = fileName.lastIndexOf('.');
+        return dotIndex > -1 ? fileName.substring(dotIndex + 1) : "";
     }
 
 }

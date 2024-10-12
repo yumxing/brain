@@ -1,6 +1,9 @@
 package cn.com.wishtoday.model;
 
-public class CollegeModel {
+import java.io.Serializable;
+
+public class CollegeModel implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Integer id;
     private String collegeCode;
     private String collegeName;
