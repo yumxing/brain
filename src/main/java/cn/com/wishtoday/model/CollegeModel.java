@@ -1,18 +1,36 @@
 package cn.com.wishtoday.model;
 
-public class CollegeModel {
-    private int id;
+import java.io.Serializable;
+
+public class CollegeModel implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
     private String collegeCode;
     private String collegeName;
-    private int collegePublic;
+    private Integer collegePublic;
     private String collegeCity;
     private String collegeCategory;
 
-    public int getId() {
+    public CollegeModel() {
+    }
+
+    @Override
+    public String toString() {
+        return "CollegeModel{" +
+                "id=" + id +
+                ", collegeCode='" + collegeCode + '\'' +
+                ", collegeName='" + collegeName + '\'' +
+                ", collegePublic=" + collegePublic +
+                ", collegeCity='" + collegeCity + '\'' +
+                ", collegeCategory='" + collegeCategory + '\'' +
+                '}';
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -32,11 +50,11 @@ public class CollegeModel {
         this.collegeName = collegeName;
     }
 
-    public int getCollegePublic() {
+    public Integer getCollegePublic() {
         return collegePublic;
     }
 
-    public void setCollegePublic(int collegePublic) {
+    public void setCollegePublic(Integer collegePublic) {
         this.collegePublic = collegePublic;
     }
 
