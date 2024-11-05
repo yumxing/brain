@@ -30,11 +30,14 @@ public class DemoDao {
         listArray.add(strArray1);
         listArray.add(strArray2);
         listArray.add(strArray3);
+        Connection conn = null;
         try {
-            Connection conn = DBManager.getInstance().createConnection();
+            conn = DBManager.getInstance().createConnection();
             listMap = DBUtil.query(conn, sql, listArray, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            DBUtil.closeQuietly(conn);
         }
         long endSql = System.currentTimeMillis();//sql执行完成时间
         log.info("数据返回结束，执行时间为："+(endSql-startSql)+"ms");
@@ -47,11 +50,14 @@ public class DemoDao {
         String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
         log.info("当前执行数据库操作的方法是："+methodName);
         String sql = "SELECT * FROM zhongzhi_college WHERE college_city=?";
+        Connection conn = null;
         try {
-            Connection conn = DBManager.getInstance().createConnection();
+            conn = DBManager.getInstance().createConnection();
             listMap = DBUtil.query(conn, sql, "深圳");
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        } finally {
+            DBUtil.closeQuietly(conn);
         }
         long endSql = System.currentTimeMillis();//sql执行完成时间
         log.info("数据返回结束，执行时间为："+(endSql-startSql)+"ms");

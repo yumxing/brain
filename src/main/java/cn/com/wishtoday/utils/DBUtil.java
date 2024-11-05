@@ -1,9 +1,6 @@
 package cn.com.wishtoday.utils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -37,13 +34,12 @@ public class DBUtil {
         } finally {
             closeQuietly(rs);
             closeQuietly(pstmt);
-            closeQuietly(conn);
         }
     }
 
 
     /**
-     *
+     * 查询操作
      * @param conn 数据库连接
      * @param sql sql语句
      * @param listArray ResultSet结果集
@@ -76,7 +72,54 @@ public class DBUtil {
         } finally {
             closeQuietly(rs);
             closeQuietly(pstmt);
+
+        }
+    }
+
+    /**
+     * 删除操作
+     * @param conn 数据库连接
+     * @param sql sql语句
+     * @param params sql参数
+     * @throws SQLException 异常
+     */
+    public static int executeSql(Connection conn, String sql, Object... params) throws SQLException {
+        //int rowsAffected = 0;
+        PreparedStatement pstmt = null;
+        try{
+            pstmt = conn.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i+1, params[i]);
+            }
+            //执行数据库操作,受影响的行int rowsAffected
+            return pstmt.executeUpdate();
+        } finally {
+            closeQuietly(pstmt);
             closeQuietly(conn);
+        }
+
+    }
+
+    /**
+     * 获取数据库总记录数
+     * @param conn 数据库连接
+     * @param sql sql语句
+     * @throws SQLException 异常
+     */
+    public static int toCount(Connection conn, String sql) throws SQLException {
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try{
+            pstmt = conn.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            int totalCount = 0;
+            if(rs.next()){
+                totalCount = rs.getInt(1);
+            }
+            return totalCount;
+        } finally {
+            closeQuietly(rs);
+            closeQuietly(pstmt);
         }
     }
 
@@ -84,7 +127,7 @@ public class DBUtil {
      * 辅助方法用于安静地关闭资源
      * @param closeable 参数
      */
-    private static void closeQuietly(AutoCloseable closeable){
+    public static void closeQuietly(AutoCloseable closeable){
         if(closeable != null){
             try {
                 closeable.close();
