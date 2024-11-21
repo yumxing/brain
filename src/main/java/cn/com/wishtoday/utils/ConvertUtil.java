@@ -1,8 +1,13 @@
 package cn.com.wishtoday.utils;
 
+import org.eclipse.jetty.util.resource.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Base64;
@@ -75,6 +80,25 @@ public class ConvertUtil {
         String fileName = path.getFileName().toString();
         int dotIndex = fileName.lastIndexOf('.');
         return dotIndex > -1 ? fileName.substring(dotIndex + 1) : "";
+    }
+
+
+    /**
+     * 使用Java的输入流和字符流来读取Resource并输出为字符串
+     * @param resource 源路径
+     * @return 返回值
+     * @throws IOException 异常
+     */
+    public static String readResourceAsString(Resource resource) throws IOException {
+        StringBuilder stringBuilder = new StringBuilder();
+        try (InputStream inputStream = resource.getInputStream();
+             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+        }
+        return stringBuilder.toString();
     }
 
 }

@@ -1,16 +1,20 @@
 package cn.com.wishtoday.dao;
 
 import cn.com.wishtoday.model.Page;
+import cn.com.wishtoday.model.SortersModel;
 import cn.com.wishtoday.model.StudentModel;
 import cn.com.wishtoday.repository.db.DBManager;
 import cn.com.wishtoday.utils.DBUtil;
 import cn.com.wishtoday.utils.EntityConverter;
+import cn.com.wishtoday.utils.YmxUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +23,6 @@ public class StudentDao {
     /**
      * 删除
      * @param id 参数ID
-     * @throws SQLException 异常
      */
     public int remove(long id){
         String sql ="delete from student where id=?";
@@ -39,18 +42,35 @@ public class StudentDao {
      * 查询
      * @param start 起始页
      * @param limit 结束页
-     * @param sort 排序方式
-     * @param dir 排序字段
+     * @param sortParam 排序方式、排序字段
      * @return 返回值
      */
-    public Page pagedQuery(int start, int limit, String sort, String dir){
-        Page page = null;
+    public Page pagedQuery(int start, int limit, String sortParam){
+        Page page;
         long startSql = System.currentTimeMillis();//sql开始执行时间
         String methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
         log.info("当前执行数据库操作的方法是："+methodName);
         String sql = "SELECT * FROM student";
-        if(sort != null && !sort.equals("") && dir != null && !dir.equals("")){
-            sql += " order by "+dir+" "+sort;
+        if(sortParam != null && !sortParam.isEmpty()){
+            ObjectMapper objectMapper = new ObjectMapper();
+            CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, SortersModel.class);
+            try {
+                List<SortersModel> listSorters = objectMapper.readValue(sortParam, collectionType);
+                StringBuilder orderBy = new StringBuilder(" ORDER BY ");
+                for (int i = 0; i < listSorters.size(); i++) {
+                    String property = listSorters.get(i).getProperty();
+                    String direction = listSorters.get(i).getDirection();
+                    orderBy.append(YmxUtil.toSnakeCase(property)).append(" ")
+                            .append(YmxUtil.toSnakeCase(direction));
+                    if(i < listSorters.size()-1){
+                        orderBy.append(", ");
+                    }
+                }
+                sql += orderBy.toString();
+            } catch (JsonProcessingException e) {
+                log.error("JSON格式数据-"+sortParam+"转换异常：{}", e.getMessage());
+                //throw new RuntimeException(e);
+            }
         }
         if(start >= 0 && limit > 0){
             sql += " LIMIT "+start+", "+limit;

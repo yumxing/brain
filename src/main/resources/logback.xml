@@ -59,7 +59,6 @@
             <level>ERROR</level>
         </filter>
         <asynchronousSending>false</asynchronousSending>
-        <bufferSize>512</bufferSize>
     </appender>
 
     <!-- 根据日志级别过滤日志 -->

@@ -13,6 +13,8 @@ Ext.define('StudentRecord', {
 });
 
 const store = Ext.create('Ext.data.Store', {
+    autoLoad: true,
+    autoDestroy: true,
     pageSize: 15,
     proxy: {
         type: 'ajax',
@@ -25,7 +27,7 @@ const store = Ext.create('Ext.data.Store', {
         }
     },
     model: StudentRecord,
-    remoteSort: true
+    remoteSort: false    //关闭远程排序-false、开启-true
 });
 
 const sexRenderer = function (value) {
@@ -38,7 +40,7 @@ const sexRenderer = function (value) {
 
 const columns = [
     {header: 'ID', dataIndex: 'id', hidden: true},
-    {header: '学号', dataIndex: 'code'},
+    {header: '学号', dataIndex: 'code', sortable: true},
     {header: '姓名', dataIndex: 'name'},
     {header: '性别', dataIndex: 'sex', renderer: sexRenderer},
     {header: '年龄', dataIndex: 'age'},
@@ -87,7 +89,7 @@ const grid = Ext.create('Ext.grid.GridPanel', {
     loadMask: true,
     store: store,
     columns: columns,
-    forceFit: true,
+    forceFit: true, //自主决定每列的宽度
     bbar: Ext.create('Ext.PagingToolbar', {
         pageSize: 15,
         store: store,

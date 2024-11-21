@@ -76,8 +76,10 @@ public class DBManager {
     }
     // 创建数据库连接
     public Connection createConnection() throws SQLException {
+        while (dataSource == null){
+            instance.loadDBManager();
+            instance.initializeDataSource();
+        }
         return dataSource.getConnection();
     }
-
-
 }
