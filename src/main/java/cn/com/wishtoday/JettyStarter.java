@@ -1,23 +1,28 @@
 package cn.com.wishtoday;
 
 import cn.com.wishtoday.config.ApplicationConfig;
-import cn.com.wishtoday.utils.GetClassUtil;
+import cn.com.wishtoday.filter.GzipFilter;
+import cn.com.wishtoday.utils.YmxUtil;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
+import java.util.EnumSet;
 import java.util.List;
 public class JettyStarter {
     private static final ApplicationConfig appConfig = ApplicationConfig.getInstance();
     static int port = appConfig.getProperty("server.port", 8080);
-    static long idleTimeout = appConfig.getProperty("server.idleTimeout", 60000L);
+    static long idleTimeout = appConfig.getProperty("server.idleTimeout", 60*1000);
     static String contextPath = appConfig.getProperty("server.servlet.context-path", "/");
+    static String pathSpec = appConfig.getProperty("server.servlet.pathSpec", "cn.com.wishtoday.controller");
 
     /**
      * 启动服务
@@ -55,37 +60,52 @@ public class JettyStarter {
      * 上下文处理程序
      * @return 返回值
      */
-    private static ContextHandlerCollection getContexts(){
-        // 创建一个ServletContextHandler
-        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath(contextPath);
+    private static ContextHandlerCollection getContexts() {
+        try {
+            // 获取Resource对象
+            Resource resource = Resource.newClassPathResource("/static");
+            // 创建一个ServletContextHandler
+            ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+            context.setContextPath(contextPath);
 
-        context.setBaseResource(Resource.newClassPathResource("/static"));// 设置静态资源路径
-        context.addServlet(DefaultServlet.class, "/");// 使用默认Servlet处理静态资源请求
-        context.setWelcomeFiles(new String[]{"index.html"});// 设置欢迎页面
+            context.setBaseResource(resource); // 设置静态资源路径
+            context.addServlet(DefaultServlet.class, "/");
+            context.setWelcomeFiles(new String[]{"index.html"});
 
-        // 注册Servlet
-        String packageName = "cn.com.wishtoday.servlet";
-        List<Class<?>> list = GetClassUtil.getClassByPage(packageName);
+            // 注册Servlet
+            registerServlets(context, pathSpec);
 
+            // 设置自动列表和索引页显示，方便查看资源列表
+            context.setInitParameter("dirAllowed", "true");
+            //热部署
+            String rb = "D:/home/project/brain/src/main/resources/static";
+            context.setResourceBase(rb);
+            context.setInitParameter("resourceBase", rb);
+
+            // 注册过滤器
+            FilterHolder gzipJsFilterHolder = new FilterHolder(new GzipFilter());
+            context.addFilter(gzipJsFilterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+            ContextHandlerCollection contexts = new ContextHandlerCollection();
+            contexts.addHandler(context);
+
+            return contexts;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize context handlers", e);
+        }
+    }
+
+    private static void registerServlets(ServletContextHandler context, String packageName) {
+        List<Class<?>> list = YmxUtil.getClassByPage(packageName);
         for (Class<?> clazz : list) {
-            if (HttpServlet.class.isAssignableFrom(clazz)) { // 检查是否继承自HttpServlet
+            if (HttpServlet.class.isAssignableFrom(clazz)) {
                 WebServlet webServletAnnotation = clazz.getAnnotation(WebServlet.class);
-                if (webServletAnnotation != null) { // 检查是否有@WebServlet注解
+                if (webServletAnnotation != null) {
                     @SuppressWarnings("unchecked")
                     ServletHolder holder = new ServletHolder((Class<? extends Servlet>) clazz);
                     context.addServlet(holder, webServletAnnotation.urlPatterns()[0]);
                 }
             }
         }
-        // 设置自动列表和索引页显示，方便查看资源列表
-        context.setResourceBase("D:/home/project/brain/src/main/resources/static");
-        context.setInitParameter("dirAllowed", "true");
-        context.setInitParameter("resourceBase", "D:/home/project/brain/src/main/resources/static");
-
-        ContextHandlerCollection contexts = new ContextHandlerCollection();
-        contexts.addHandler(context);
-
-        return contexts;
     }
 }

@@ -8,10 +8,10 @@ import java.util.List;
 
 public class StudentService {
 
-    public Page getList(int start, int limit, String sort, String dir){
+    public Page getList(int start, int limit, String sortParam){
         StudentDao sd = new StudentDao();
         //排序：ASC 或者 DESC
-        return sd.pagedQuery(start, limit, sort, dir);
+        return sd.pagedQuery(start, limit, sortParam);
 
     }
 

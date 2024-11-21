@@ -10,9 +10,14 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-public class GetClassUtil {
-    private static final Logger log = LoggerFactory.getLogger(GetClassUtil.class);
+public class YmxUtil {
+    private static final Logger log = LoggerFactory.getLogger(YmxUtil.class);
 
+    /**
+     * 根据包名获取包名下的所有class类
+     * @param packageName 包名
+     * @return 返回list类
+     */
     public static List<Class<?>> getClassByPage(String packageName){
         // 使用ClassLoader获取指定包下的所有类名
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -48,4 +53,14 @@ public class GetClassUtil {
         return list;
     }
 
+    /**
+     * 将驼峰命名转换为下划线命名
+     * @param camelCase 字符串
+     * @return 返回值全部大写
+     */
+    public static String toSnakeCase(String camelCase){
+        String withUnderscores = camelCase.replaceAll("([a-z])([A-Z])", "$1_$2");
+        return withUnderscores.toUpperCase();//全部大写
+
+    }
 }
